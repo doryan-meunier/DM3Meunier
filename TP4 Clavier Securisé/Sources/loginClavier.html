@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<title>login munérique</title>
+		 <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+		<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+		<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
+		<style >
+		table {border:0.2em black solid; margin-left:3em; cursor:pointer}
+		.case {width:12; height:12;background-color:grey}
+		.activecase {background-color:white}
+		input {height:1.5em;width:18em; display:block}
+		input[name=code] {display:disabled}
+		</style>
+		<script>
+			//Quelques variables utiles
+			var nbTouches = 0;	//initialisation du nombre de touches saisies par l'utilisateur
+			var vdef= "valeur du code saisi : "; 	//Chaîne d'affichage par défaut dans <input type="code">
+			var maxTentatives = 3; 	//reduction du nb de soumission à maxTentatives
+			var maxTouches = 6; 	//nb de chiffres du code à saisir
+			var dimCarre = 4;		//spécifie la dimension matricielle du clavier carré
+						
+			//Quelques références (jquery) sur les balises de la page
+			var allcases;				//référence à toutes les balises <td> du clavier HTML (id="clavier")
+			var activecases;			//référence à celles qui ont class="activecase"
+			var icode;					//référence à la balise affichant le code saisi <input name="code">
+			var form;					//référence au formulaire <form action="" method="post">
+			var msg;					//référence à la zone de messages à l'utilisateur <div id="msg">
+
+			//A FAIRE  >>>>>>>>>>>
+				//Exécution par lancement de la fonction init.
+			
+			//A FAIRE >>>>>>>>>>>	Quelques fonctions à écrire
+			function init() {
+				// Spécifier les valeurs des variables jquery
+				allcases = $('#clavier td');
+				activecases = $('#clavier .activecase');
+				icode = $('input[name="code"]');
+				form = $('form');
+				msg = $('#msg');
+
+				// Actions initiales
+				icode.val(''); // Ne pas afficher le texte initial "valeur du code saisi :"
+
+				// Autoriser les écoutes de clics sur le clavier pour lancer la fonction touche.
+				allcases.on('click', touche);
+
+				form.submit(soumettre);
+				$('input[type="reset"]').click(effacerCode);
+			}
+
+			
+			//A FAIRE >>>>>>>>>>>	
+			function touche() {
+				// Vérifier le nombre de saisies
+				if (nbTouches >= maxTouches) {
+					return;
+				}
+
+				// Récupérer la valeur actuelle du champ code
+				var codeValue = icode.val();
+
+				// Récupérer le texte de la touche cliquée
+				var toucheText = $(this).text();
+
+				// Concaténer le texte de la touche à la valeur actuelle du champ code
+				codeValue += toucheText;
+
+				// Mettre à jour la valeur du champ code
+				icode.val(codeValue);
+
+				// Incrémenter le nombre de touches saisies
+				nbTouches++;
+			}
+
+			
+			//A FAIRE >>>>>>>>>>>	
+			function soumettre() {
+				// Conditions préalables à la soumission
+				if (nbSoumissions >= maxTentatives || icode.val().length !== maxChiffres) {
+					return;
+				}
+
+				// Récupérer les données du formulaire
+				var nom = $('input[name="nom"]').val();
+				var code = icode.val();
+
+				// Effectuer la requête AJAX
+				$.ajax({
+					url: 'verifLogin.php', 
+					method: 'POST',
+					data: { nom: nom, code: code },
+					success: function(response) {
+						if (response === 'ok') {
+							alert('Code valide! Redirection...');
+						} else {
+							alert('Code invalide. Réessayez.');
+						}
+					},
+					error: function() {
+						alert('Erreur lors de la soumission du formulaire.');
+					},
+					complete: function() {
+						effacerCode();
+						nbSoumissions++;
+					}
+				});
+			}
+
+			
+			//A FAIRE >>>>>>>>>>> 
+			function effacerCode() {
+				// Modifier la valeur de l'attribut value de la balise <input name="code">
+				// pour n'afficher que la valeur de vdef.
+				icode.val('');
+
+				// Réinitialiser le nombre de touches à zéro
+				nbTouches = 0;
+
+			}
+			
+			//A FAIRE pour le DST : uniquement le point (1) cité.
+			function remplirClavierNum() {	
+				//(1)Elimine globalement la classe de style "activecase" 
+				// pour toutes les cellules <td> du clavier
+				//puis affecte 10 d'entre elles tirées aléatoirement 
+				//avec la classe de style "activecase"
+
+				allcases.removeClass('activecase');
+
+				// (2) Affecte 10 d'entre elles tirées aléatoirement avec la classe de style "activecase"
+				var randomIndexes = [];
+				while (randomIndexes.length < 10) {
+					var randomIndex = Math.floor(Math.random() * allcases.length);
+					if (!randomIndexes.includes(randomIndex)) {
+						randomIndexes.push(randomIndex);
+						allcases.eq(randomIndex).addClass('activecase');
+					}
+				}
+
+				
+				
+				//(2) Seules les cellules ayant la classe de style "activecase" 
+				//supporteront un chiffre qui sera tiré dynamiquement et aléatoirement 
+				//pris parmi les chiffres non encore attribués.
+				//Note : tab.splice(c,1) enlève la case d'indice c du tableau tab
+				//Note : Math.round() arrondi à l'entier le plus prêt
+				//Note : Math.floor() tronque donnant l'entier proche inférieur 
+			}
+
+			$(document).ready(function() {
+            	init();
+        	});
+			
+		</script>
+<body>
+		<h2> Login numérique</h2>
+	
+		<h3> Clavier de saisie de votre code <br/>
+		(3 tentatives maximum)</h3>
+		<table id="clavier">
+				<tr><td class="case activecase">7</td>
+					<td class="case activecase">2</td>
+					<td class="case"></td>
+					<td class="case activecase">9</td>
+				</tr>
+				<tr><td class="case"></td>
+					<td class="case activecase">0</td>
+					<td class="case activecase">5</td>
+					<td class="case"></td>
+				</tr>
+				<tr><td class="case activecase">6</td>
+					<td class="case activecase">8</td>
+					<td class="case activecase">1</td>
+					<td class="case"></td>
+				</tr>
+				<tr><td class="case"></td>
+					<td class="case"></td>
+					<td class="case activecase">3</td>
+					<td class="case activecase">4</td>
+				</tr>
+			</table>
+		<form method="post" action=""> 
+			<div>
+				<input type="text" name="nom" placeholder="saisir votre nom, svp:"/>
+				<input type="text" name="code" value=""/>
+			</div>
+			<input type="submit" value="valider">
+			<input type="reset" value="effacer">
+		</form>
+		<div id="msg">
+		</div>
+	</body>
+</html>
