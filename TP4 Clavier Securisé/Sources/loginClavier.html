@@ -34,55 +34,38 @@
 			
 			//A FAIRE >>>>>>>>>>>	Quelques fonctions à écrire
 			function init() {
-				// Spécifier les valeurs des variables jquery
 				allcases = $('#clavier td');
 				activecases = $('#clavier .activecase');
 				icode = $('input[name="code"]');
 				form = $('form');
 				msg = $('#msg');
-
-				// Actions initiales
-				icode.val(''); // Ne pas afficher le texte initial "valeur du code saisi :"
-
-				// Autoriser les écoutes de clics sur le clavier pour lancer la fonction touche.
+				icode.val(''); 
 				allcases.on('click', touche);
-
 				form.submit(soumettre);
 				$('input[type="reset"]').click(effacerCode);
+
+				remplirClavierNum();
 			}
 
 			
 			//A FAIRE >>>>>>>>>>>	
 			function touche() {
-				// Vérifier le nombre de saisies
 				if (nbTouches >= maxTouches) {
 					return;
 				}
-
-				// Récupérer la valeur actuelle du champ code
 				var codeValue = icode.val();
-
-				// Récupérer le texte de la touche cliquée
 				var toucheText = $(this).text();
-
-				// Concaténer le texte de la touche à la valeur actuelle du champ code
 				codeValue += toucheText;
-
-				// Mettre à jour la valeur du champ code
 				icode.val(codeValue);
-
-				// Incrémenter le nombre de touches saisies
 				nbTouches++;
 			}
 
 			
 			//A FAIRE >>>>>>>>>>>	
 			function soumettre() {
-				// Conditions préalables à la soumission
 				if (nbSoumissions >= maxTentatives || icode.val().length !== maxChiffres) {
 					return;
 				}
-
 				// Récupérer les données du formulaire
 				var nom = $('input[name="nom"]').val();
 				var code = icode.val();
@@ -112,43 +95,32 @@
 			
 			//A FAIRE >>>>>>>>>>> 
 			function effacerCode() {
-				// Modifier la valeur de l'attribut value de la balise <input name="code">
-				// pour n'afficher que la valeur de vdef.
 				icode.val('');
-
-				// Réinitialiser le nombre de touches à zéro
 				nbTouches = 0;
 
 			}
 			
 			//A FAIRE pour le DST : uniquement le point (1) cité.
-			function remplirClavierNum() {	
-				//(1)Elimine globalement la classe de style "activecase" 
-				// pour toutes les cellules <td> du clavier
-				//puis affecte 10 d'entre elles tirées aléatoirement 
-				//avec la classe de style "activecase"
+// A FAIRE pour le DST : uniquement le point (1) cité.
+function remplirClavierNum() {
+    allcases.removeClass('activecase');
+    var activeCells = allcases.filter('.case').get().sort(function () {
+        return 0.5 - Math.random();
+    }).slice(0, 10);
+    $(activeCells).addClass('activecase');
+    var grayCells = $('.case.activecase');
+    var chiffresDisponibles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+    grayCells.each(function () {
+        var chiffreIndex = Math.floor(Math.random() * chiffresDisponibles.length);
+        var chiffre = chiffresDisponibles[chiffreIndex];
+        $(this).text(chiffre); 
+        chiffresDisponibles.splice(chiffreIndex, 1); 
+    });
+}
 
-				allcases.removeClass('activecase');
 
-				// (2) Affecte 10 d'entre elles tirées aléatoirement avec la classe de style "activecase"
-				var randomIndexes = [];
-				while (randomIndexes.length < 10) {
-					var randomIndex = Math.floor(Math.random() * allcases.length);
-					if (!randomIndexes.includes(randomIndex)) {
-						randomIndexes.push(randomIndex);
-						allcases.eq(randomIndex).addClass('activecase');
-					}
-				}
 
-				
-				
-				//(2) Seules les cellules ayant la classe de style "activecase" 
-				//supporteront un chiffre qui sera tiré dynamiquement et aléatoirement 
-				//pris parmi les chiffres non encore attribués.
-				//Note : tab.splice(c,1) enlève la case d'indice c du tableau tab
-				//Note : Math.round() arrondi à l'entier le plus prêt
-				//Note : Math.floor() tronque donnant l'entier proche inférieur 
-			}
+
 
 			$(document).ready(function() {
             	init();
@@ -161,25 +133,25 @@
 		<h3> Clavier de saisie de votre code <br/>
 		(3 tentatives maximum)</h3>
 		<table id="clavier">
-				<tr><td class="case activecase">7</td>
-					<td class="case activecase">2</td>
+				<tr><td class="case activecase"></td>
+					<td class="case activecase"></td>
 					<td class="case"></td>
-					<td class="case activecase">9</td>
+					<td class="case activecase"></td>
 				</tr>
 				<tr><td class="case"></td>
-					<td class="case activecase">0</td>
-					<td class="case activecase">5</td>
+					<td class="case activecase"></td>
+					<td class="case activecase"></td>
 					<td class="case"></td>
 				</tr>
-				<tr><td class="case activecase">6</td>
-					<td class="case activecase">8</td>
-					<td class="case activecase">1</td>
+				<tr><td class="case activecase"></td>
+					<td class="case activecase"></td>
+					<td class="case activecase"></td>
 					<td class="case"></td>
 				</tr>
 				<tr><td class="case"></td>
 					<td class="case"></td>
-					<td class="case activecase">3</td>
-					<td class="case activecase">4</td>
+					<td class="case activecase"></td>
+					<td class="case activecase"></td>
 				</tr>
 			</table>
 		<form method="post" action=""> 
